@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1 class="mb-4">Shopping Cart</h1>
+
+<table class="table table-bordered table-hover">
+
+    <thead class="table-dark">
+
+        <tr>
+
+            <th>Food</th>
+            <th>Quantity</th>
+            <th>Subtotal</th>
+            <th>Action</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for item in cart_items %}
+
+        <tr>
+
+            <td>
+                {{ item.menu.name }}
+            </td>
+
+            <td>
+
+                <a href="{% url 'decrease_quantity' item.menu.id %}"
+                   class="btn btn-danger btn-sm">
+                    -
+                </a>
+
+                <span class="mx-3">
+                    {{ item.quantity }}
+                </span>
+
+                <a href="{% url 'increase_quantity' item.menu.id %}"
+                   class="btn btn-success btn-sm">
+                    +
+                </a>
+            </td>
+            <td>
+                ₹{{ item.subtotal }}
+            </td>
+
+            <td>
+                <a href="{% url 'remove_from_cart' item.menu.id %}"
+                   class="btn btn-danger btn-sm">
+                    Remove
+                </a>
+            </td>
+        </tr>
+
+        {% empty %}
+
+        <tr>
+
+            <td colspan="4" class="text-center">
+                Your cart is empty.
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+<h3 class="mt-4">
+    Total: ₹{{ total }}
+</h3>
+
+<a href="{% url 'checkout' %}"
+   class="btn btn-success mt-3">
+    Place Order
+</a>
+
+{% endblock %}

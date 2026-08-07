@@ -1,0 +1,70 @@
+ {% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">My Orders</h2>
+
+{% if orders %}
+
+<table class="table table-bordered table-hover">
+
+    <thead class="table-dark">
+        <tr>
+            <th>Order ID</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+    {% for order in orders %}
+
+        <tr>
+
+            <td>{{ order.id }}</td>
+
+            <td>{{ order.status }}</td>
+
+            <td>{{ order.order_date }}</td>
+
+            <td>
+
+                <a href="{% url 'order_details' order.id %}"
+                class="btn btn-primary btn-sm">
+
+                    View Details
+
+                </a>
+
+                {% if order.status == 'pending' %}
+
+                    <a href="{% url 'cancel_order' order.id %}"
+                    class="btn btn-danger btn-sm">
+
+                        Cancel
+
+                    </a>
+
+                {% endif %}
+
+            </td>
+
+        </tr>
+
+    {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% else %}
+
+<div class="alert alert-info">
+    You have not placed any orders yet.
+</div>
+
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Management System</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+
+        <div class="container">
+
+            <a class="navbar-brand" href="#">
+                RestaurantMS
+            </a>
+
+            <div>
+
+                <a class="btn btn-outline-light me-2"
+                    href="/customer-dashboard/">
+                    Dashboard
+                </a>
+                
+                {% if request.user.role == 'admin' %}
+                    <a class="btn btn-success me-2"
+                    href="{% url 'add_menu' %}">
+                    Add Menu
+                    </a>
+                {% endif %}
+
+                <a class="btn btn-warning me-2"
+                    href="{% url 'manage_orders' %}">
+                        Manage Orders
+                </a>
+                
+                <a class="btn btn-outline-light me-2"
+                href="/menu/">
+                    Menu
+                </a>
+
+                <a class="btn btn-primary me-2"
+                href="{% url 'view_cart' %}">
+                    Cart
+                </a>
+
+                <a class="btn btn-outline-light me-2"
+                href="{% url 'my_orders' %}">
+                    My Orders
+                </a>
+
+                <a class="btn btn-danger"
+                href="{% url 'logout' %}">
+                    Logout
+                </a>
+
+
+                
+
+            </div>
+
+        </div>
+
+    </nav>
+    
+
+    <div class="container mt-4">
+
+        {% block content %}
+
+        {% endblock %}
+
+    </div>
+
+</body>
+</html>

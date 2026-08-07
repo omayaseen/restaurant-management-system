@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1 class="mb-4">
+    Restaurant Menu
+</h1>
+
+<form method="GET" class="mb-4">
+
+    <div class="input-group">
+
+        <input
+            type="text"
+            name="search"
+            class="form-control"
+            placeholder="Search Menu..."
+            value="{{ request.GET.search }}">
+
+        <button class="btn btn-primary">
+            Search
+        </button>
+
+    </div>
+
+</form>
+
+<div class="mb-4">
+
+    <a href="/menu/" class="btn btn-secondary">All</a>
+
+    <a href="/menu/?category=main_course" class="btn btn-primary">
+        Main Course
+    </a>
+
+    <a href="/menu/?category=drink" class="btn btn-success">
+        Drinks
+    </a>
+
+    <a href="/menu/?category=dessert" class="btn btn-warning">
+        Desserts
+    </a>
+
+</div>
+
+<div class="row g-4">
+
+    {% for menu in menus %}
+
+    <div class="col-md-4">
+
+        <div class="card h-100 shadow">
+
+            {% if menu.image %}
+
+                <img
+                    src="{{ menu.image.url }}"
+                    class="card-img-top"
+                    style="height:220px; object-fit:cover;">
+
+            {% else %}
+
+                <div
+                    class="d-flex justify-content-center align-items-center bg-light"
+                    style="height:220px;">
+
+                    <h5 class="text-muted">
+                        No Image
+                    </h5>
+
+                </div>
+
+            {% endif %}
+
+            <div class="card-body d-flex flex-column">
+
+                <h4 class="card-title">
+                    {{ menu.name }}
+                </h4>
+
+                <p class="card-text text-muted">
+                    {{ menu.description }}
+                </p>
+
+                <h4 class="text-success mb-3">
+                    ₹{{ menu.price }}
+                </h4>
+
+                <p>
+
+                    <strong>Category:</strong>
+
+                    {{ menu.get_category_display }}
+
+                </p>
+
+                {% if menu.available %}
+
+                    <span class="badge bg-success mb-3">
+                        Available
+                    </span>
+
+                {% else %}
+
+                    <span class="badge bg-danger mb-3">
+                        Not Available
+                    </span>
+
+                {% endif %}
+
+                <div class="mt-auto">
+
+                    {% if request.user.role == 'admin' %}
+
+                        <a href="{% url 'edit_menu' menu.id %}"
+                           class="btn btn-warning btn-sm">
+                            Edit
+                        </a>
+
+                    {% endif %}
+
+                    {% if request.user.role == 'admin' %}
+                        <a href="{% url 'delete_menu' menu.id %}"
+                        class="btn btn-danger btn-sm">
+                            Delete
+                        </a>
+                    {% endif %}
+
+                    <form
+                        method="POST"
+                        action="{% url 'add_to_cart' menu.id %}">
+
+                        {% csrf_token %}
+
+                        <div class="input-group">
+
+                            <input
+                                type="number"
+                                name="quantity"
+                                value="1"
+                                min="1"
+                                class="form-control">
+
+                            <button
+                                class="btn btn-primary">
+
+                                Add To Cart
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% empty %}
+
+    <div class="col-12">
+
+        <div class="alert alert-warning">
+
+            No menu items found.
+
+        </div>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}
