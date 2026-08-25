@@ -138,6 +138,29 @@ This project is configured for Razorpay **Test Mode only**. Using it with real p
 
 ---
 
+## Deploying to Render
+
+The project already includes everything Render's Python runtime needs (`gunicorn`, `whitenoise`, `psycopg2-binary`, `dj-database-url` in `requirements.txt`, plus a production-ready `config/settings.py`). On the Render **Web Service**, set:
+
+- **Build Command:** `pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate`
+- **Start Command:** `gunicorn config.wsgi:application`
+
+And these **environment variables**:
+
+| Variable | Required? | Notes |
+|---|---|---|
+| `DJANGO_SECRET_KEY` | Yes | Any long random string — never reuse the local dev key. |
+| `DEBUG` | No | Leave unset (defaults to `False`) in production. |
+| `DATABASE_URL` | Yes, to use Postgres | Set this to your Render Postgres instance's **Internal Database URL** (same-region service-to-service; no SSL needed). Without it the app silently falls back to a local SQLite file, which is wiped on every deploy. |
+| `RENDER_EXTERNAL_HOSTNAME` | No | Render sets this automatically — do not set it manually. It's what makes `ALLOWED_HOSTS`/`CSRF_TRUSTED_ORIGINS` work with your `*.onrender.com` URL out of the box. |
+| `ALLOWED_HOSTS` | Only for a custom domain | Comma-separated list, e.g. `myrestaurant.com,www.myrestaurant.com`. |
+| `CSRF_TRUSTED_ORIGINS` | Only for a custom domain | Comma-separated full origins, e.g. `https://myrestaurant.com`. |
+| `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` | Optional | Same Test Mode keys as local — see the Razorpay section above. |
+
+After the first deploy, uploaded menu-item images (`media/`) will not persist or be served in production — Render's filesystem is ephemeral and this project only serves `MEDIA_URL` while `DEBUG=True` (see "Menu Items & Images" above). Adding a cloud storage backend (e.g. S3-compatible storage) would be needed for persistent image uploads in production; that's outside the scope of this project as configured.
+
+---
+
 ## Quick Reference
 
 ```bash

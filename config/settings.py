@@ -28,6 +28,31 @@ DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
+# Render automatically sets RENDER_EXTERNAL_HOSTNAME on every web service to
+# its public *.onrender.com domain. Without this, the default ALLOWED_HOSTS
+# above (localhost/127.0.0.1) never matches the real Host header the browser
+# sends in production, so Django rejects every request with a bare
+# "Bad Request (400)" (DisallowedHost) - this was the deploy blocker.
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+# Render terminates HTTPS at its edge proxy and forwards plain HTTP to the
+# app, so without this Django thinks every request is insecure - which
+# breaks secure-cookie/CSRF behavior behind the proxy.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Django requires the exact scheme+host of any origin allowed to submit POST
+# requests (login, register, checkout, cart, order-status forms all rely on
+# this) once the app is served over HTTPS from a host Django itself didn't
+# generate the form on locally. Built from the same Render hostname above,
+# with an optional CSRF_TRUSTED_ORIGINS env var for a custom domain.
+CSRF_TRUSTED_ORIGINS = [
+    origin for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if origin
+]
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
+
 
 # Application definition
 
