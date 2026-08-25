@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1 class="mb-1">Payment</h1>
+<p class="text-muted mb-4">Complete your order with a secure test-mode payment.</p>
+
+<div class="row g-4">
+
+    <div class="col-lg-5 order-lg-2">
+
+        <div class="card shadow-sm">
+
+            <div class="card-body">
+
+                <h4 class="card-title mb-3">Order Summary</h4>
+
+                <ul class="list-group list-group-flush mb-3">
+
+                    {% for item in cart_items %}
+
+                        <li class="list-group-item d-flex justify-content-between align-items-start px-0">
+
+                            <div>
+                                <div class="fw-semibold">{{ item.menu.name }}</div>
+                                <small class="text-muted">
+                                    {{ item.quantity }} &times; ₹{{ item.menu.price }}
+                                </small>
+                            </div>
+
+                            <span class="fw-semibold">₹{{ item.subtotal }}</span>
+
+                        </li>
+
+                    {% endfor %}
+
+                </ul>
+
+                <div class="d-flex justify-content-between align-items-center border-top pt-3">
+                    <span class="fs-5 fw-semibold">Grand Total</span>
+                    <span class="grand-total">₹{{ total }}</span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card shadow-sm mt-3">
+
+            <div class="card-body">
+
+                <h6 class="card-title text-muted text-uppercase small mb-2">Deliver To</h6>
+
+                <p class="mb-1 fw-semibold">{{ checkout_info.full_name }}</p>
+                <p class="mb-1">{{ checkout_info.phone }}</p>
+                <p class="mb-0 text-muted">{{ checkout_info.delivery_address }}</p>
+
+            </div>
+
+        </div>
+
+        <p class="text-center text-muted small mt-3 mb-0">
+            🔒 Payments are processed securely via Razorpay Test Mode. No real money is charged.
+        </p>
+
+    </div>
+
+    <div class="col-lg-7 order-lg-1">
+
+        <div class="card shadow-sm">
+
+            <div class="card-body text-center py-5">
+
+                {% if gateway_error %}
+
+                    <div class="mb-3" style="font-size: 2.5rem;">⚠️</div>
+
+                    <div class="alert alert-danger text-start" role="alert">
+                        {{ gateway_error }}
+                    </div>
+
+                    <a href="{% url 'view_cart' %}" class="btn btn-outline-secondary">
+                        Back to Cart
+                    </a>
+
+                {% else %}
+
+                    <p class="text-muted mb-4">
+                        This is a <strong>test/sandbox payment</strong> &mdash; no real money
+                        will be charged. Use Razorpay's test card number
+                        <strong>4111 1111 1111 1111</strong>, any future expiry date,
+                        and any 3-digit CVV.
+                    </p>
+
+                    <button id="pay-now-btn" class="btn btn-success btn-lg px-5">
+                        Pay Now &mdash; ₹{{ total }}
+                    </button>
+
+                    <div id="pay-processing" class="mt-4 d-none">
+                        <div class="spinner-border text-success" role="status">
+                            <span class="visually-hidden">Processing...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Processing payment&hellip;</p>
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% if not gateway_error %}
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    const payBtn = document.getElementById('pay-now-btn');
+    const processingBox = document.getElementById('pay-processing');
+
+    payBtn.addEventListener('click', function () {
+
+        payBtn.classList.add('d-none');
+        processingBox.classList.remove('d-none');
+
+        const options = {
+            key: "{{ razorpay_key_id }}",
+            amount: "{{ razorpay_order.amount }}",
+            currency: "{{ razorpay_order.currency }}",
+            name: "RestaurantMS",
+            description: "Order Payment (Test Mode)",
+            order_id: "{{ razorpay_order.id }}",
+
+            handler: function (response) {
+                // Send Razorpay's response to our own server for
+                // signature verification. This is a normal same-origin
+                // fetch request, so Django's CSRF protection stays on -
+                // we just pass the token through the header.
+                fetch("{% url 'payment_verify' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify(response)
+                })
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    window.location.href = data.redirect_url;
+                })
+                .catch(function () {
+                    window.location.href = "{% url 'payment_failed' %}?reason=bad_request";
+                });
+            },
+
+            modal: {
+                ondismiss: function () {
+                    window.location.href = "{% url 'payment_failed' %}?reason=cancelled";
+                }
+            },
+
+            prefill: {
+                name: "{{ checkout_info.full_name }}",
+                contact: "{{ checkout_info.phone }}"
+            },
+
+            theme: {
+                color: "#198754"
+            }
+        };
+
+        const rzp = new Razorpay(options);
+
+        rzp.on('payment.failed', function () {
+            window.location.href = "{% url 'payment_failed' %}?reason=failed";
+        });
+
+        rzp.open();
+    });
+</script>
+
+{% endif %}
+
+{% endblock %}

@@ -1,11 +1,72 @@
 {% extends 'base.html' %}
-{% block content %}
-<h1>Add Menu Items</h1>
-<form method="POST"
-      enctype="multipart/form-data">
-    {% csrf_token%}
 
-    {{ form.as_p}}
-    <button type="submit" class="btn btn-success">Add Item</button>
-</form>
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-7">
+
+        <div class="card shadow-sm">
+
+            <div class="card-body p-4">
+
+                <h3 class="card-title mb-4">Add Menu Item</h3>
+
+                <form method="POST" enctype="multipart/form-data" novalidate>
+
+                    {% csrf_token %}
+
+                    {% for field in form %}
+
+                        {% if field.field.widget.input_type == 'checkbox' %}
+
+                            <div class="form-check mb-3">
+                                {{ field }}
+                                <label class="form-check-label" for="{{ field.id_for_label }}">
+                                    {{ field.label }}
+                                </label>
+                            </div>
+
+                        {% else %}
+
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    {{ field.label }}
+                                    {% if field.field.required %}
+                                        <span class="text-danger">*</span>
+                                    {% endif %}
+                                </label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <div class="form-text">{{ field.help_text }}</div>
+                                {% endif %}
+                            </div>
+
+                        {% endif %}
+
+                        {% for error in field.errors %}
+                            <div class="text-danger small mt-n2 mb-3">{{ error }}</div>
+                        {% endfor %}
+
+                    {% endfor %}
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-success">
+                            Add Item
+                        </button>
+                        <a href="{% url 'menu_list' %}" class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
 {% endblock %}

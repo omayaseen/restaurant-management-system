@@ -2,22 +2,71 @@
 
 {% block content %}
 
-<h1>Edit Menu Item</h1>
+<div class="row justify-content-center">
 
-<form method="POST" enctype="multipart/form-data">
+    <div class="col-lg-7">
 
-    {% csrf_token %}
+        <div class="card shadow-sm">
 
-    {{ form.as_p }}
+            <div class="card-body p-4">
 
-    <button
-        type="submit"
-        class="btn btn-warning">
+                <h3 class="card-title mb-4">Edit Menu Item</h3>
 
-        Update Item
+                <form method="POST" enctype="multipart/form-data" novalidate>
 
-    </button>
+                    {% csrf_token %}
 
-</form>
+                    {% for field in form %}
+
+                        {% if field.field.widget.input_type == 'checkbox' %}
+
+                            <div class="form-check mb-3">
+                                {{ field }}
+                                <label class="form-check-label" for="{{ field.id_for_label }}">
+                                    {{ field.label }}
+                                </label>
+                            </div>
+
+                        {% else %}
+
+                            <div class="mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    {{ field.label }}
+                                    {% if field.field.required %}
+                                        <span class="text-danger">*</span>
+                                    {% endif %}
+                                </label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <div class="form-text">{{ field.help_text }}</div>
+                                {% endif %}
+                            </div>
+
+                        {% endif %}
+
+                        {% for error in field.errors %}
+                            <div class="text-danger small mt-n2 mb-3">{{ error }}</div>
+                        {% endfor %}
+
+                    {% endfor %}
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-warning">
+                            Update Item
+                        </button>
+                        <a href="{% url 'menu_list' %}" class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 {% endblock %}

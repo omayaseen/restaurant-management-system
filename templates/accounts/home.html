@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- ============ HERO SECTION ============ -->
+<div class="p-5 mb-5 rounded-3 bg-dark text-white text-center">
+
+    {% if request.user.is_authenticated and request.user.role == 'customer' %}
+
+        <h1 class="display-4 fw-bold">Welcome back, {{ request.user.get_full_name|default:request.user.username }}!</h1>
+
+        <p class="lead mb-4">
+            Ready to order something delicious?
+        </p>
+
+    {% else %}
+
+        <h1 class="display-4 fw-bold">RestaurantMS</h1>
+
+        <p class="lead mb-4">
+            Freshly prepared food, delivered fast &mdash; order online in just a few clicks.
+        </p>
+
+    {% endif %}
+
+    <a href="{% url 'menu_list' %}" class="btn btn-light btn-lg me-2">
+        View Menu
+    </a>
+
+    {% if request.user.is_authenticated and request.user.role == 'customer' %}
+        <a href="{% url 'view_cart' %}" class="btn btn-primary btn-lg">
+            Order Now
+        </a>
+    {% endif %}
+
+</div>
+
+<!-- ============ FEATURED MENU SECTION ============ -->
+<h2 class="mb-4 d-flex align-items-center gap-2">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+        <path d="M3 2v7c0 1.66 1.34 3 3 3v10"></path>
+        <path d="M6 2v7"></path>
+        <path d="M9 2v7"></path>
+        <path d="M18 2c-2.21 0-4 2.24-4 5v6h2v9h2V2z"></path>
+    </svg>
+    Featured Menu
+</h2>
+
+<div class="row g-4 mb-5">
+
+    {% for item in featured_items %}
+
+    <div class="col-md-4">
+
+        <div class="card menu-card h-100 shadow-sm">
+
+            <div class="menu-card-img-wrap">
+
+                {% if item.image %}
+
+                    <img src="{{ item.image.url }}" alt="{{ item.name }}">
+
+                {% else %}
+
+                    <div class="d-flex justify-content-center align-items-center h-100 text-muted">
+                        No Image
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+            <div class="card-body d-flex flex-column">
+
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                    <h5 class="card-title mb-0">{{ item.name }}</h5>
+                    <span class="badge bg-light text-dark border">{{ item.get_category_display }}</span>
+                </div>
+
+                <p class="card-text text-muted small mb-2">{{ item.description }}</p>
+
+                <h5 class="menu-price text-success mt-auto mb-0">₹{{ item.price }}</h5>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% empty %}
+
+    <div class="col-12">
+        <div class="card empty-state-card shadow-sm">
+            <div class="card-body text-center py-5">
+                <div class="empty-state-icon text-muted mb-3">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 2v7c0 1.66 1.34 3 3 3v10"></path>
+                        <path d="M6 2v7"></path>
+                        <path d="M9 2v7"></path>
+                        <path d="M18 2c-2.21 0-4 2.24-4 5v6h2v9h2V2z"></path>
+                    </svg>
+                </div>
+                <p class="text-muted mb-0">No menu items are available right now. Please check back soon.</p>
+            </div>
+        </div>
+    </div>
+
+    {% endfor %}
+
+</div>
+
+<div class="text-center mb-5">
+    <a href="{% url 'menu_list' %}" class="btn btn-outline-dark">
+        See Full Menu
+    </a>
+</div>
+
+<!-- ============ CATEGORIES SECTION ============ -->
+<h2 class="mb-4 d-flex align-items-center gap-2">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+        <rect x="3" y="3" width="7" height="7"></rect>
+        <rect x="14" y="3" width="7" height="7"></rect>
+        <rect x="14" y="14" width="7" height="7"></rect>
+        <rect x="3" y="14" width="7" height="7"></rect>
+    </svg>
+    Browse by Category
+</h2>
+
+<div class="row g-3 mb-5">
+
+    {% for value, label in categories %}
+
+    <div class="col-6 col-md-3">
+
+        <a href="{% url 'menu_list' %}?category={{ value }}"
+           class="btn btn-outline-primary w-100 py-3">
+            {{ label }}
+        </a>
+
+    </div>
+
+    {% endfor %}
+
+</div>
+
+<!-- ============ WHY CHOOSE US SECTION ============ -->
+<h2 class="mb-4 d-flex align-items-center gap-2">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+    </svg>
+    Why Choose Us
+</h2>
+
+<div class="row g-4 mb-5 text-center">
+
+    <div class="col-md-3 col-6">
+        <div class="card action-card h-100 shadow-sm">
+            <div class="card-body p-4">
+                <div class="action-icon mx-auto mb-3">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                </div>
+                <h5>Fast Service</h5>
+                <p class="text-muted mb-0">Your order is prepared and served quickly, every time.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card action-card h-100 shadow-sm">
+            <div class="card-body p-4">
+                <div class="action-icon mx-auto mb-3">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8h1a4 4 0 0 1 0 8h-1"></path>
+                        <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path>
+                        <line x1="6" y1="1" x2="6" y2="4"></line>
+                        <line x1="10" y1="1" x2="10" y2="4"></line>
+                        <line x1="14" y1="1" x2="14" y2="4"></line>
+                    </svg>
+                </div>
+                <h5>Fresh Food</h5>
+                <p class="text-muted mb-0">Made with quality ingredients, prepared fresh to order.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card action-card h-100 shadow-sm">
+            <div class="card-body p-4">
+                <div class="action-icon mx-auto mb-3">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                </div>
+                <h5>Easy Online Ordering</h5>
+                <p class="text-muted mb-0">Browse the menu, add to cart, and check out in minutes.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 col-6">
+        <div class="card action-card h-100 shadow-sm">
+            <div class="card-body p-4">
+                <div class="action-icon mx-auto mb-3">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                </div>
+                <h5>Secure Payment</h5>
+                <p class="text-muted mb-0">Your payment details are handled securely at checkout.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ============ CALL TO ACTION SECTION ============ -->
+<div class="p-4 mb-5 rounded-3 bg-light text-center border">
+
+    <h3 class="mb-3">Hungry? Let's get you fed.</h3>
+
+    <p class="text-muted mb-3">
+        Browse our menu and place your order online in just a few taps.
+    </p>
+
+    <a href="{% url 'menu_list' %}" class="btn btn-dark btn-lg">
+        Browse Menu &amp; Order
+    </a>
+
+</div>
+
+{% endblock %}

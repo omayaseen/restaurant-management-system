@@ -1,56 +1,136 @@
 {% extends 'base.html' %}
+{% load order_extras %}
 
 {% block content %}
 
-<h2 class="mb-4">
-    Order #{{ order.id }}
-</h2>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
 
-<p>
-    <strong>Status:</strong> {{ order.status }}
-</p>
+    <div>
+        <h1 class="mb-1">Order #{{ order.id }}</h1>
+        <p class="text-muted mb-0">Placed on {{ order.order_date|date:"d M Y, H:i" }}</p>
+    </div>
 
-<p>
-    <strong>Order Date:</strong> {{ order.order_date }}
-</p>
+    <div class="d-flex gap-2">
+        {% if order.status == 'pending' %}
+            <span class="badge bg-secondary fs-6">{{ order.get_status_display }}</span>
+        {% elif order.status == 'confirmed' %}
+            <span class="badge bg-primary fs-6">{{ order.get_status_display }}</span>
+        {% elif order.status == 'preparing' %}
+            <span class="badge bg-warning text-dark fs-6">{{ order.get_status_display }}</span>
+        {% elif order.status == 'ready' %}
+            <span class="badge bg-info text-dark fs-6">{{ order.get_status_display }}</span>
+        {% elif order.status == 'delivered' %}
+            <span class="badge bg-success fs-6">{{ order.get_status_display }}</span>
+        {% else %}
+            <span class="badge bg-danger fs-6">{{ order.get_status_display }}</span>
+        {% endif %}
 
-<table class="table table-bordered">
+        {% if order.payment_status == 'paid' %}
+            <span class="badge bg-success fs-6">{{ order.get_payment_status_display }}</span>
+        {% elif order.payment_status == 'failed' %}
+            <span class="badge bg-danger fs-6">{{ order.get_payment_status_display }}</span>
+        {% else %}
+            <span class="badge bg-secondary fs-6">{{ order.get_payment_status_display }}</span>
+        {% endif %}
+    </div>
 
-    <thead class="table-dark">
+</div>
 
-        <tr>
+<div class="card shadow-sm mb-4">
 
-            <th>Item</th>
+    <div class="card-body">
 
-            <th>Quantity</th>
+        <div class="row">
 
-            <th>Price</th>
+            <div class="col-md-6 mb-3 mb-md-0">
+                <h6 class="text-muted text-uppercase small mb-2">Customer</h6>
+                {% if order.full_name %}
+                    <p class="mb-1"><strong>{{ order.full_name }}</strong></p>
+                {% endif %}
+                {% if order.phone %}
+                    <p class="mb-0 text-muted">{{ order.phone }}</p>
+                {% endif %}
+            </div>
 
-        </tr>
+            {% if order.delivery_address %}
+            <div class="col-md-6">
+                <h6 class="text-muted text-uppercase small mb-2">Delivery Address</h6>
+                <p class="mb-0">{{ order.delivery_address }}</p>
+                {% if order.notes %}
+                    <p class="text-muted mb-0 mt-2"><em>Note: {{ order.notes }}</em></p>
+                {% endif %}
+            </div>
+            {% endif %}
 
-    </thead>
+        </div>
 
-    <tbody>
+    </div>
 
-        {% for item in items %}
+</div>
 
-        <tr>
+<div class="card shadow-sm">
 
-            <td>{{ item.menu_item.name }}</td>
+    <div class="card-header bg-white">
+        <strong>Items Ordered</strong>
+    </div>
 
-            <td>{{ item.quantity }}</td>
+    <div class="card-body p-0">
 
-            <td>₹{{ item.menu_item.price }}</td>
+        <div class="table-responsive">
 
-        </tr>
+            <table class="table mb-0 align-middle">
 
-        {% endfor %}
+                <thead class="table-light">
+                    <tr>
+                        <th>Item</th>
+                        <th class="text-center">Quantity</th>
+                        <th class="text-end">Unit Price</th>
+                        <th class="text-end">Subtotal</th>
+                    </tr>
+                </thead>
 
-    </tbody>
+                <tbody>
 
-</table>
-<h4 class="text-end mt-3">
-    Total : ₹{{ total }}
-</h4>
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.menu_item.name }}</td>
+                        <td class="text-center">{{ item.quantity }}</td>
+                        <td class="text-end">₹{{ item.menu_item.price }}</td>
+                        <td class="text-end fw-semibold">₹{{ item|line_subtotal }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-4">No items found for this order.</td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Grand Total</h5>
+        <span class="grand-total">₹{{ total }}</span>
+    </div>
+
+</div>
+
+<div class="mt-4">
+
+    {% if request.user.role == 'customer' %}
+        <a href="{% url 'my_orders' %}" class="btn btn-outline-secondary">
+            &larr; Back to My Orders
+        </a>
+    {% elif request.user.role == 'admin' or request.user.role == 'staff' %}
+        <a href="{% url 'manage_orders' %}" class="btn btn-outline-secondary">
+            &larr; Back to Manage Orders
+        </a>
+    {% endif %}
+
+</div>
 
 {% endblock %}

@@ -2,11 +2,12 @@
 
 {% block content %}
 
-<h1 class="mb-4">
-    Restaurant Menu
-</h1>
+<div class="mb-4">
+    <h1 class="mb-1">Restaurant Menu</h1>
+    <p class="text-muted mb-0">Pick your favourites and add them straight to your cart.</p>
+</div>
 
-<form method="GET" class="mb-4">
+<form method="GET" class="mb-3">
 
     <div class="input-group">
 
@@ -17,7 +18,7 @@
             placeholder="Search Menu..."
             value="{{ request.GET.search }}">
 
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" type="submit">
             Search
         </button>
 
@@ -25,19 +26,30 @@
 
 </form>
 
-<div class="mb-4">
+<div class="mb-4 d-flex flex-wrap gap-2">
 
-    <a href="/menu/" class="btn btn-secondary">All</a>
+    <a href="{% url 'menu_list' %}"
+       class="btn btn-sm {% if not request.GET.category %}btn-secondary{% else %}btn-outline-secondary{% endif %}">
+        All
+    </a>
 
-    <a href="/menu/?category=main_course" class="btn btn-primary">
+    <a href="{% url 'menu_list' %}?category=starter"
+       class="btn btn-sm {% if request.GET.category == 'starter' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+        Starter
+    </a>
+
+    <a href="{% url 'menu_list' %}?category=main_course"
+       class="btn btn-sm {% if request.GET.category == 'main_course' %}btn-primary{% else %}btn-outline-primary{% endif %}">
         Main Course
     </a>
 
-    <a href="/menu/?category=drink" class="btn btn-success">
+    <a href="{% url 'menu_list' %}?category=drink"
+       class="btn btn-sm {% if request.GET.category == 'drink' %}btn-success{% else %}btn-outline-success{% endif %}">
         Drinks
     </a>
 
-    <a href="/menu/?category=dessert" class="btn btn-warning">
+    <a href="{% url 'menu_list' %}?category=dessert"
+       class="btn btn-sm {% if request.GET.category == 'dessert' %}btn-warning{% else %}btn-outline-warning{% endif %}">
         Desserts
     </a>
 
@@ -47,110 +59,102 @@
 
     {% for menu in menus %}
 
-    <div class="col-md-4">
+    <div class="col-sm-6 col-md-4 col-lg-3">
 
-        <div class="card h-100 shadow">
+        <div class="card menu-card h-100 shadow-sm">
 
-            {% if menu.image %}
+            <div class="menu-card-img-wrap">
 
-                <img
-                    src="{{ menu.image.url }}"
-                    class="card-img-top"
-                    style="height:220px; object-fit:cover;">
+                {% if menu.image %}
 
-            {% else %}
-
-                <div
-                    class="d-flex justify-content-center align-items-center bg-light"
-                    style="height:220px;">
-
-                    <h5 class="text-muted">
-                        No Image
-                    </h5>
-
-                </div>
-
-            {% endif %}
-
-            <div class="card-body d-flex flex-column">
-
-                <h4 class="card-title">
-                    {{ menu.name }}
-                </h4>
-
-                <p class="card-text text-muted">
-                    {{ menu.description }}
-                </p>
-
-                <h4 class="text-success mb-3">
-                    ₹{{ menu.price }}
-                </h4>
-
-                <p>
-
-                    <strong>Category:</strong>
-
-                    {{ menu.get_category_display }}
-
-                </p>
-
-                {% if menu.available %}
-
-                    <span class="badge bg-success mb-3">
-                        Available
-                    </span>
+                    <img src="{{ menu.image.url }}" alt="{{ menu.name }}">
 
                 {% else %}
 
-                    <span class="badge bg-danger mb-3">
-                        Not Available
-                    </span>
+                    <div class="d-flex justify-content-center align-items-center h-100 text-muted">
+                        No Image
+                    </div>
 
                 {% endif %}
+
+            </div>
+
+            <div class="card-body d-flex flex-column">
+
+                <div class="d-flex justify-content-between align-items-start mb-1">
+                    <h5 class="card-title mb-0">{{ menu.name }}</h5>
+                    <span class="badge bg-light text-dark border">{{ menu.get_category_display }}</span>
+                </div>
+
+                <p class="card-text text-muted small mb-2">
+                    {{ menu.description }}
+                </p>
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="menu-price text-success mb-0">₹{{ menu.price }}</h5>
+
+                    {% if menu.available %}
+                        <span class="badge bg-success">Available</span>
+                    {% else %}
+                        <span class="badge bg-danger">Not Available</span>
+                    {% endif %}
+                </div>
 
                 <div class="mt-auto">
 
                     {% if request.user.role == 'admin' %}
-
-                        <a href="{% url 'edit_menu' menu.id %}"
-                           class="btn btn-warning btn-sm">
-                            Edit
-                        </a>
-
-                    {% endif %}
-
-                    {% if request.user.role == 'admin' %}
-                        <a href="{% url 'delete_menu' menu.id %}"
-                        class="btn btn-danger btn-sm">
-                            Delete
-                        </a>
-                    {% endif %}
-
-                    <form
-                        method="POST"
-                        action="{% url 'add_to_cart' menu.id %}">
-
-                        {% csrf_token %}
-
-                        <div class="input-group">
-
-                            <input
-                                type="number"
-                                name="quantity"
-                                value="1"
-                                min="1"
-                                class="form-control">
-
-                            <button
-                                class="btn btn-primary">
-
-                                Add To Cart
-
-                            </button>
-
+                        <div class="d-flex gap-2 mb-2">
+                            <a href="{% url 'edit_menu' menu.id %}"
+                               class="btn btn-outline-warning btn-sm flex-fill">
+                                Edit
+                            </a>
+                            <a href="{% url 'delete_menu' menu.id %}"
+                               class="btn btn-outline-danger btn-sm flex-fill">
+                                Delete
+                            </a>
                         </div>
+                    {% endif %}
 
-                    </form>
+                    {% if menu.available %}
+
+                        <form method="POST" action="{% url 'add_to_cart' menu.id %}" class="add-to-cart-form">
+
+                            {% csrf_token %}
+
+                            <div class="d-flex align-items-center gap-2">
+
+                                <div class="qty-control">
+
+                                    <button type="button" class="qty-btn qty-decrease" aria-label="Decrease quantity">&minus;</button>
+
+                                    <input
+                                        type="number"
+                                        name="quantity"
+                                        class="qty-input"
+                                        value="1"
+                                        min="1"
+                                        inputmode="numeric"
+                                        aria-label="Quantity">
+
+                                    <button type="button" class="qty-btn qty-increase" aria-label="Increase quantity">&plus;</button>
+
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-sm flex-fill">
+                                    Add to Cart
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    {% else %}
+
+                        <button class="btn btn-secondary btn-sm w-100" disabled>
+                            Currently Unavailable
+                        </button>
+
+                    {% endif %}
 
                 </div>
 
@@ -164,10 +168,20 @@
 
     <div class="col-12">
 
-        <div class="alert alert-warning">
-
-            No menu items found.
-
+        <div class="card empty-state-card shadow-sm">
+            <div class="card-body text-center py-5">
+                <div class="empty-state-icon text-muted mb-3">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </div>
+                <h4 class="mb-2">No menu items found</h4>
+                <p class="text-muted mb-0">
+                    No menu items found{% if request.GET.search %} for "{{ request.GET.search }}"{% endif %}.
+                </p>
+            </div>
         </div>
 
     </div>
@@ -175,5 +189,40 @@
     {% endfor %}
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    document.querySelectorAll('.qty-control').forEach(function (control) {
+
+        var input = control.querySelector('.qty-input');
+        var decreaseBtn = control.querySelector('.qty-decrease');
+        var increaseBtn = control.querySelector('.qty-increase');
+
+        function clampToMinimumOne() {
+            var value = parseInt(input.value, 10);
+            if (isNaN(value) || value < 1) {
+                value = 1;
+            }
+            input.value = value;
+        }
+
+        decreaseBtn.addEventListener('click', function () {
+            clampToMinimumOne();
+            input.value = parseInt(input.value, 10) - 1;
+            clampToMinimumOne();
+        });
+
+        increaseBtn.addEventListener('click', function () {
+            clampToMinimumOne();
+            input.value = parseInt(input.value, 10) + 1;
+        });
+
+        input.addEventListener('change', clampToMinimumOne);
+        input.addEventListener('blur', clampToMinimumOne);
+    });
+
+});
+</script>
 
 {% endblock %}

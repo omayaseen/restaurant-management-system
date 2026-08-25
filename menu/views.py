@@ -5,6 +5,7 @@ from django.shortcuts import redirect
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -32,6 +33,7 @@ def menu_list(request):
         }
     )
 
+@login_required
 def add_menu(request):
 
     if request.user.role != 'admin':
@@ -59,6 +61,7 @@ def add_menu(request):
         }
     )
 
+@login_required
 def edit_menu(request, id):
 
     if request.user.role != 'admin':
@@ -96,6 +99,7 @@ def edit_menu(request, id):
     )
 
 
+@login_required
 def delete_menu(request, id):
 
     if request.user.role != 'admin':
@@ -114,6 +118,3 @@ def delete_menu(request, id):
         return redirect('menu_list')
 
     return render(request,'menu/delete_menu.html',{'menu': menu})
-
-
-

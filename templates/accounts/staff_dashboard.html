@@ -2,10 +2,196 @@
 
 {% block content %}
 
-<h1>Staff Dashboard</h1>
+<div class="card shadow-sm mb-4">
+    <div class="card-body p-4 d-flex align-items-center gap-3">
 
-<p>
-    Welcome {{ request.user.username }}
-</p>
+        <div class="dashboard-header-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 11l3 3L22 4"></path>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+        </div>
+
+        <div>
+            <h2 class="mb-1">Staff Dashboard</h2>
+            <p class="text-muted mb-0">Welcome, {{ request.user.username }}. Here's what needs your attention today.</p>
+        </div>
+
+    </div>
+</div>
+
+<!-- ============ SUMMARY CARDS ============ -->
+<div class="row g-3 mb-4">
+
+    <div class="col-6 col-md-4 col-lg">
+        <div class="card stat-card text-white bg-secondary shadow-sm h-100">
+            <div class="card-body text-center">
+                <svg class="stat-icon mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <div class="stat-value">{{ pending_orders }}</div>
+                <div class="stat-label">Pending</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-lg">
+        <div class="card stat-card text-white bg-primary shadow-sm h-100">
+            <div class="card-body text-center">
+                <svg class="stat-icon mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <div class="stat-value">{{ confirmed_orders }}</div>
+                <div class="stat-label">Confirmed</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-lg">
+        <div class="card stat-card text-dark bg-warning shadow-sm h-100">
+            <div class="card-body text-center">
+                <svg class="stat-icon mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                </svg>
+                <div class="stat-value">{{ preparing_orders }}</div>
+                <div class="stat-label">Preparing</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-lg">
+        <div class="card stat-card text-white bg-info shadow-sm h-100">
+            <div class="card-body text-center">
+                <svg class="stat-icon mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
+                <div class="stat-value">{{ ready_orders }}</div>
+                <div class="stat-label">Ready</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-4 col-lg">
+        <div class="card stat-card text-white bg-success shadow-sm h-100">
+            <div class="card-body text-center">
+                <svg class="stat-icon mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="3" width="15" height="13"></rect>
+                    <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                    <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                    <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                </svg>
+                <div class="stat-value">{{ delivered_orders }}</div>
+                <div class="stat-label">Delivered</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ============ QUICK ACTIONS ============ -->
+<div class="d-flex flex-wrap gap-2 mb-4">
+    <a href="{% url 'manage_orders' %}" class="btn btn-warning">Manage Orders</a>
+    <a href="{% url 'menu_list' %}" class="btn btn-outline-secondary">View Menu</a>
+</div>
+
+<!-- ============ ORDERS TO PROCESS ============ -->
+<div class="card shadow-sm">
+
+    <div class="card-header bg-white d-flex align-items-center justify-content-between flex-wrap gap-2 py-3">
+        <div class="d-flex align-items-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-warning">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+            <strong class="fs-5">Orders to Process</strong>
+        </div>
+        <span class="badge bg-warning text-dark rounded-pill">{{ orders_to_process|length }} order{{ orders_to_process|length|pluralize }}</span>
+    </div>
+
+    <div class="card-body p-0">
+
+        {% if orders_to_process %}
+
+        <div class="table-responsive">
+
+            <table class="table table-hover mb-0 align-middle">
+
+                <thead class="table-light">
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer</th>
+                        <th>Order Date</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for order in orders_to_process %}
+
+                    <tr>
+                        <td>#{{ order.id }}</td>
+                        <td>{{ order.customer.username }}</td>
+                        <td>{{ order.order_date|date:"d M Y, H:i" }}</td>
+                        <td>₹{{ order.order_total }}</td>
+                        <td>
+                            {% if order.status == 'pending' %}
+                                <span class="badge bg-secondary">{{ order.get_status_display }}</span>
+                            {% elif order.status == 'confirmed' %}
+                                <span class="badge bg-primary">{{ order.get_status_display }}</span>
+                            {% elif order.status == 'preparing' %}
+                                <span class="badge bg-warning text-dark">{{ order.get_status_display }}</span>
+                            {% elif order.status == 'ready' %}
+                                <span class="badge bg-info text-dark">{{ order.get_status_display }}</span>
+                            {% elif order.status == 'delivered' %}
+                                <span class="badge bg-success">{{ order.get_status_display }}</span>
+                            {% else %}
+                                <span class="badge bg-danger">{{ order.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'order_details' order.id %}" class="btn btn-sm btn-outline-primary">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-state-card text-center py-5">
+            <div class="empty-state-icon text-muted mb-2">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+            </div>
+            <p class="text-muted mb-0">No orders currently need processing. Great work!</p>
+        </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
 
 {% endblock %}

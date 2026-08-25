@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-6">
+
+        <div class="card shadow-sm text-center">
+
+            <div class="card-body p-5">
+
+                <div class="mb-3" style="font-size: 3rem;">😕</div>
+
+                <h2 class="card-title text-danger mb-3">Payment Not Completed</h2>
+
+                <p class="mb-4">{{ message }}</p>
+
+                <p class="text-muted mb-4">
+                    Your cart has not been changed and nothing has been charged.
+                </p>
+
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                    <a href="{% url 'payment' %}" class="btn btn-success">Retry Payment</a>
+                    <a href="{% url 'checkout' %}" class="btn btn-outline-secondary">Edit Delivery Details</a>
+                    <a href="{% url 'view_cart' %}" class="btn btn-outline-secondary">Back to Cart</a>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

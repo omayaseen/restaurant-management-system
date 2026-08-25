@@ -2,34 +2,41 @@
 
 {% block content %}
 
-<h2>
-    Delete Menu Item
-</h2>
+<div class="row justify-content-center">
 
-<p>
-    Are you sure you want to delete
-    <strong>{{ menu.name }}</strong>?
-</p>
+    <div class="col-lg-6">
 
-<form method="POST">
+        <div class="card shadow-sm border-danger-subtle">
 
-    {% csrf_token %}
+            <div class="card-body p-4 text-center">
 
-    <button
-        type="submit"
-        class="btn btn-danger">
+                <h4 class="card-title text-danger mb-3">Delete Menu Item</h4>
 
-        Delete
+                <p class="mb-4">
+                    Are you sure you want to delete <strong>{{ menu.name }}</strong>?
+                    This action cannot be undone.
+                </p>
 
-    </button>
+                <form method="POST" class="d-flex justify-content-center gap-2">
 
-    <a href="{% url 'menu_list' %}"
-       class="btn btn-secondary">
+                    {% csrf_token %}
 
-       Cancel
+                    <button type="submit" class="btn btn-danger">
+                        Delete
+                    </button>
 
-    </a>
+                    <a href="{% url 'menu_list' %}" class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
 
-</form>
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 {% endblock %}

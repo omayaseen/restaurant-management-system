@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+    <div class="col-lg-8">
+
+        <div class="text-center mb-4">
+            <div class="mb-2" style="font-size: 3rem;">✅</div>
+            <h1 class="text-success mb-1">Order Confirmed!</h1>
+            <p class="text-muted mb-0">
+                Thank you, {{ order.full_name }}. Your order has been placed successfully.
+            </p>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+
+            <div class="card-body p-4">
+
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+
+                    <div>
+                        <h4 class="mb-0">Order #{{ order.id }}</h4>
+                        <small class="text-muted">{{ order.order_date|date:"d M Y, H:i" }}</small>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-2 mt-sm-0">
+
+                        {% if order.payment_status == 'paid' %}
+                            <span class="badge bg-success fs-6">{{ order.get_payment_status_display }}</span>
+                        {% elif order.payment_status == 'failed' %}
+                            <span class="badge bg-danger fs-6">{{ order.get_payment_status_display }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary fs-6">{{ order.get_payment_status_display }}</span>
+                        {% endif %}
+
+                        {% if order.status == 'pending' %}
+                            <span class="badge bg-secondary fs-6">{{ order.get_status_display }}</span>
+                        {% elif order.status == 'confirmed' %}
+                            <span class="badge bg-primary fs-6">{{ order.get_status_display }}</span>
+                        {% elif order.status == 'preparing' %}
+                            <span class="badge bg-warning text-dark fs-6">{{ order.get_status_display }}</span>
+                        {% elif order.status == 'ready' %}
+                            <span class="badge bg-info text-dark fs-6">{{ order.get_status_display }}</span>
+                        {% elif order.status == 'delivered' %}
+                            <span class="badge bg-success fs-6">{{ order.get_status_display }}</span>
+                        {% else %}
+                            <span class="badge bg-danger fs-6">{{ order.get_status_display }}</span>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+                <hr>
+
+                <div class="row mb-3">
+
+                    <div class="col-sm-6">
+                        <h6 class="text-muted text-uppercase small mb-2">Customer</h6>
+                        <p class="mb-0 fw-semibold">{{ order.full_name }}</p>
+                        <p class="mb-0 text-muted">{{ order.phone }}</p>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <h6 class="text-muted text-uppercase small mb-2">Delivery Address</h6>
+                        <p class="mb-0">{{ order.delivery_address }}</p>
+                        {% if order.notes %}
+                            <p class="text-muted mb-0 mt-1"><em>Note: {{ order.notes }}</em></p>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+                <hr>
+
+                <h6 class="text-muted text-uppercase small mb-2">Items Ordered</h6>
+
+                <div class="table-responsive">
+
+                    <table class="table table-sm table-borderless mb-0">
+
+                        <thead>
+                            <tr class="border-bottom">
+                                <th>Item</th>
+                                <th class="text-center">Qty</th>
+                                <th class="text-end">Unit Price</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            {% for item in items %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td class="text-center">{{ item.quantity }}</td>
+                                <td class="text-end">₹{{ item.price }}</td>
+                                <td class="text-end fw-semibold">₹{{ item.subtotal }}</td>
+                            </tr>
+                            {% endfor %}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-2">
+                    <span class="fs-5 fw-semibold">Grand Total</span>
+                    <span class="grand-total">₹{{ total }}</span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="d-flex justify-content-center gap-2">
+            <a href="{% url 'my_orders' %}" class="btn btn-primary">View My Orders</a>
+            <a href="{% url 'menu_list' %}" class="btn btn-outline-secondary">Continue Shopping</a>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
